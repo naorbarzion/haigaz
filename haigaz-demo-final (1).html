@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>חי גז - מערכת הודעות חכמה</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Rubik', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .phone-frame {
+            width: 100%;
+            max-width: 375px;
+            height: 100%;
+            max-height: 812px;
+            background: #000;
+            border-radius: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 0 8px #2d2d2d,
+                       0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .status-bar {
+            height: 24px;
+            background: rgba(0,0,0,0.9);
+            position: relative;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            color: white;
+            font-size: 12px;
+        }
+
+        .status-icons {
+            display: flex;
+            gap: 6px;
+        }
+
+        /* מסך הבית */
+        .home-screen {
+            position: absolute;
+            top: 24px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://picsum.photos/400/800') center/cover;
+            padding: 20px;
+            opacity: 1;
+        }
+
+        /* מסך שיחה נכנסת */
+        .call-screen {
+            position: absolute;
+            top: 24px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, #075E54 0%, #128C7E 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            color: white;
+            padding: 20px;
+        }
+
+        .caller-logo {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 60px;
+            padding: 15px;
+            margin-bottom: 24px;
+        }
+
+        .caller-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .caller-name {
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .caller-number {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+
+        .call-actions {
+            display: flex;
+            gap: 40px;
+        }
+
+        .call-button {
+            width: 64px;
+            height: 64px;
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .call-button:active {
+            transform: scale(0.95);
+        }
+
+        .answer {
+            background: #25D366;
+        }
+
+        .decline {
+            background: #FF4B4B;
+        }
+
+        /* התראת וואטסאפ */
+        .whatsapp-notification {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 92%;
+            background: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 20;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .notification-icon {
+            width: 48px;
+            height: 48px;
+            background: #25D366;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .notification-message {
+            color: #E0E0E0;
+            font-size: 13px;
+        }
+
+        /* צ'אט וואטסאפ */
+        .whatsapp-chat {
+            position: absolute;
+            top: 24px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ECE5DD;
+            opacity: 0;
+            display: none;
+        }
+
+        .chat-header {
+            background: #075E54;
+            padding: 16px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .business-logo {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 20px;
+            padding: 5px;
+        }
+
+        .business-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .chat-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .chat-messages {
+            padding: 20px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .message.received {
+            background: white;
+            margin-right: auto;
+            border-top-left-radius: 0;
+        }
+
+        .message-text {
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+
+        .message-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .message-link {
+            padding: 10px 12px;
+            background: #128C7E;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .message-link:hover {
+            background: #075E54;
+        }
+
+        .message-link i {
+            font-size: 16px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #667781;
+            text-align: left;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <!-- סרגל סטטוס -->
+        <div class="status-bar">
+            <div class="status-time">12:00</div>
+            <div class="status-icons">
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </div>
+        </div>
+
+        <!-- מסך הבית -->
+        <div class="home-screen" id="homeScreen"></div>
+
+        <!-- מסך שיחה נכנסת -->
+        <div class="call-screen">
+            <div class="caller-logo">
+                <img src="https://www.haigas.co.il/image/catalog/logo1.png" alt="חי גז">
+            </div>
+            <div class="caller-name">חי גז בע"מ</div>
+            <div class="caller-number">02-9911220</div>
+            <div class="call-actions">
+                <div class="call-button answer">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <div class="call-button decline">
+                    <i class="fas fa-phone-slash"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- התראת וואטסאפ -->
+        <div class="whatsapp-notification">
+            <div class="notification-icon">
+                <i class="fab fa-whatsapp"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-title">חי גז בע"מ</div>
+                <div class="notification-message">הודעה חדשה: שלום, תודה שפניתם אלינו...</div>
+            </div>
+        </div>
+
+        <!-- צ'אט וואטסאפ -->
+        <div class="whatsapp-chat">
+            <div class="chat-header">
+                <div class="business-logo">
+                    <img src="https://www.haigas.co.il/image/catalog/logo1.png" alt="חי גז">
+                </div>
+                <div class="chat-title">חי גז בע"מ</div>
+            </div>
+            <div class="chat-messages">
+                <div class="message received">
+                    <div class="message-text">
+                        היי,
+                        <br>
+                        שלום, תודה שפניתם לחי גז בע"מ. קיבלנו את השיחה שלכם ונחזור אליכם בהקדם.
+                    </div>
+                    <div class="message-links">
+                        <a href="https://www.haigas.co.il/index.php?route=account/logintwo" class="message-link" target="_blank">
+                            <i class="fas fa-shopping-cart"></i>
+                            להזמנת בלונים לחץ כאן
+                        </a>
+                        <a href="https://www.haigas.co.il/index.php?route=account/loginone" class="message-link" target="_blank">
+                            <i class="fas fa-credit-card"></i>
+                            לתשלום חשבון גז לחץ כאן
+                        </a>
+                        <a href="https://wa.me/972029911220" class="message-link" target="_blank">
+                            <i class="fas fa-headset"></i>
+                            לשיחה עם נציג בוואטסאפ לחץ כאן
+                        </a>
+                    </div>
+                    <div class="message-time">12:00</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tl = gsap.timeline();
+
+            // הסתרת מסך הבית והצגת שיחה נכנסת
+            tl.to('#homeScreen', {
+                opacity: 0,
+                duration: 0.3,
+                delay: 1
+            })
+            .to('.call-screen', {
+                opacity: 1,
+                duration: 0.5
+            })
+            .to('.call-screen', {
+                opacity: 0,
+                duration: 0.5,
+                delay: 3
+            })
+            
+            // הצגת התראת וואטסאפ
+            .to('.whatsapp-notification', {
+                top: '40px',
+                duration: 0.5,
+                ease: 'back.out(1.2)'
+            })
+            .to('.whatsapp-notification', {
+                top: '-100px',
+                duration: 0.3,
+                delay: 2,
+                onComplete: () => {
+                    // הצגת צ'אט וואטסאפ
+                    document.querySelector('.whatsapp-chat').style.display = 'block';
+                    gsap.to('.whatsapp-chat', {
+                        opacity: 1,
+                        duration: 0.3
+                    });
+
+                    // אנימציה להודעה
+                    gsap.to('.message', {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.5,
+                        ease: 'back.out(1.2)'
+                    });
+                }
+            });
+        });
+
+        // הפעלת ההתראה בלחיצה
+        document.querySelector('.whatsapp-notification').addEventListener('click', () => {
+            gsap.to('.whatsapp-notification', {
+                top: '-100px',
+                duration: 0.3,
+                onComplete: () => {
+                    document.querySelector('.whatsapp-chat').style.display = 'block';
+                    gsap.to('.whatsapp-chat', {
+                        opacity: 1,
+                        duration: 0.3
+                    });
+                    gsap.to('.message', {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.5,
+                        ease: 'back.out(1.2)'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
